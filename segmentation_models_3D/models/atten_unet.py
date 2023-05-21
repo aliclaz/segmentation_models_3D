@@ -86,8 +86,7 @@ def AttentionBlock(x, gating, inter_shape, name=None):
     shape_sigmoid = backend.int_shape(sigmoid_xg)
     upsample_psi = layers.UpSampling3D(size=(shape_x[1] // shape_sigmoid[1],
                                              shape_x[2] // shape_sigmoid[2],
-                                             shape_x[3] // shape_sigmoid[3]))(
-                                                  sigmoid_xg)
+                                             shape_x[3] // shape_sigmoid[3]))(sigmoid_xg)
                                              
     upsample_psi = RepeatElement(upsample_psi, shape_x[4])
 
