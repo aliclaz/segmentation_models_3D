@@ -108,11 +108,13 @@ from . import utils
 # wrap segmentation models with framework modules
 from .backbones.backbones_factory import Backbones
 from .models.unet import Unet as _Unet
+from .models.atten_unet import AttentionUnet as _AttentionUnet
 from .models.pspnet import PSPNet as _PSPNet
 from .models.linknet import Linknet as _Linknet
 from .models.fpn import FPN as _FPN
 
 Unet = inject_global_submodules(_Unet)
+AttentionUnet = inject_global_submodules(_AttentionUnet)
 PSPNet = inject_global_submodules(_PSPNet)
 Linknet = inject_global_submodules(_Linknet)
 FPN = inject_global_submodules(_FPN)
@@ -131,7 +133,7 @@ def get_preprocessing(name):
 
 
 __all__ = [
-    'Unet', 'PSPNet', 'FPN', 'Linknet',
+    'Unet', 'AttentionUnet', 'PSPNet', 'FPN', 'Linknet',
     'set_framework', 'framework',
     'get_preprocessing', 'get_available_backbone_names',
     'losses', 'metrics', 'utils',
