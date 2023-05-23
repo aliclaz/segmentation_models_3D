@@ -109,12 +109,14 @@ from . import utils
 from .backbones.backbones_factory import Backbones
 from .models.unet import Unet as _Unet
 from .models.atten_unet import AttentionUnet as _AttentionUnet
+from .models.atten_res_unet import AttentionResUnet as _AttentionResUnet
 from .models.pspnet import PSPNet as _PSPNet
 from .models.linknet import Linknet as _Linknet
 from .models.fpn import FPN as _FPN
 
 Unet = inject_global_submodules(_Unet)
 AttentionUnet = inject_global_submodules(_AttentionUnet)
+AttentionResUnet = inject_global_submodules(_AttentionResUnet)
 PSPNet = inject_global_submodules(_PSPNet)
 Linknet = inject_global_submodules(_Linknet)
 FPN = inject_global_submodules(_FPN)
