@@ -32,7 +32,8 @@ def tst_keras_simple():
     print(model3.summary())
     model4 = sm.PSPNet('densenet121', input_shape=(96, 96, 96, 3), encoder_weights=encoder_weights)
     print(model4.summary())
-    model5 = sm.AttentionUnet('resnet34, input_shape=(64,64,64,3), encoder_weights=encoder_weights)
+    model5 = sm.AttentionUnet('resnet34, input_shape=(64, 64, 64, 3), encoder_weights=encoder_weights)
+    model6 = sm.AttentionResUnet('resnet34', input_shape=(64, 64, 64, 3), encoder_weights=encoder_weights)
 
 
 def tst_keras_all_models():
@@ -86,6 +87,14 @@ def tst_keras_all_models():
 		encoder_weights=encoder_weights
 		classes=4,
 	  )
+	  print(model4.summary())
+	  model6 = sm.AttentionResUnet(
+		backbone,
+		input_shape=(shape_size)
+		encoder_weights=encoder_weights
+		classes=4,
+	  )
+	  print(model6.summary())
 
 
 if __name__ == '__main__':
