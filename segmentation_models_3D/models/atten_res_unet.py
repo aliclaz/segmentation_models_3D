@@ -60,7 +60,7 @@ def ResConvBlock(filters, use_batchnorm=False, name=None):
         shortcut = Conv3dBn(filters, 1, kernel_initializer='he_uniform',
                             padding='same', use_batchnorm=use_batchnorm, 
                             name=name, **kwargs)
-        x = layers.Add(axis=4)([shortcut, x])
+        x = layers.add([shortcut, x])
         x = layers.Activation('relu')(x)
 
         return x
