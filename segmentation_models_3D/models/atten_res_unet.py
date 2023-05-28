@@ -54,7 +54,7 @@ def Conv3x3BnReLU(filters, use_batchnorm, name=None):
 def ResConvBlock(filters, use_batchnorm=False, name=None):
     kwargs = get_submodules()
 
-    def wrapper(input_tensor)
+    def wrapper(input_tensor):
         x = Conv3x3BnReLU(filters, use_batchnorm, name=None)(input_tensor)
         x = Conv3x3BnReLU(filters, use_batchnorm, name=None)(x)
         shortcut = Conv3dBn(filters, 1, kernel_initializer='he_uniform',
