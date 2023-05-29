@@ -53,13 +53,13 @@ def Conv3x3BnReLU(filters, use_batchnorm, name=None):
 
 def RepeatElement(tensor, rep):
     return layers.Lambda(lambda x, repnum: backend.repeat_elements(x, repnum,
-                                                                    axis=3),
+                                                                    axis=4),
                          arguments={'repnum': rep})(tensor)
 
 def GatingSignal(input, filters, use_batchnorm=False, name=None):
     x = layers.Conv3D(filters, (1, 1, 1), padding='same')(input)
     if use_batchnorm:
-        x = layer.BatchNormalization()(x)
+        x = layers.BatchNormalization()(x)
     x = layers.Activation('relu')(x)
 
     return x
@@ -76,12 +76,11 @@ def AttentionBlock(x, gating, inter_shape, name=None):
     upsample_g = layers.Conv3DTranspose(inter_shape, (3, 3, 3),
                                         strides=(shape_theta_x[1] // shape_g[1],
                                                  shape_theta_x[2] // shape_g[2],
-                                                 shape_theta_x[3] // shape_g[3])
-                                        )
+                                                 shape_theta_x[3] // shape_g[3]))(phi_g)
     
     concat_xg = layers.add([upsample_g, theta_x])
     act_xg = layers.Activation('relu')(concat_xg)
-    psi = layers.Conv3D(1, (1, 1), padding='same')(act_xg)
+    psi = layers.Conv3D(1, (1, 1, 1), padding='same')(act_xg)
     sigmoid_xg = layers.Activation('sigmoid')(psi)
     shape_sigmoid = backend.int_shape(sigmoid_xg)
     upsample_psi = layers.UpSampling3D(size=(shape_x[1] // shape_sigmoid[1],
@@ -92,7 +91,7 @@ def AttentionBlock(x, gating, inter_shape, name=None):
 
     y = layers.multiply([upsample_psi, x])
 
-    result = layers.Conv3D(shape_x[3], (1, 1), padding='same')(y)
+    result = layers.Conv3D(shape_x[4], (1, 1, 1), padding='same')(y)
     result_bn = layers.BatchNormalization()(result)
     
     return result_bn
