@@ -72,7 +72,7 @@ def RepeatElement(tensor, rep):
 def GatingSignal(input, filters, use_batchnorm=False, name=None):
     x = layers.Conv3D(filters, (1, 1, 1), padding='same')(input)
     if use_batchnorm:
-        x = layer.BatchNormalization()(x)
+        x = layers.BatchNormalization()(x)
     x = layers.Activation('relu')(x)
 
     return x
