@@ -149,6 +149,7 @@ def build_atten_res_unet(
     # extract skip connections
     skips = ([backbone.get_layer(name=i).output if isinstance(i, str)
               else backbone.get_layer(index=i).output for i in skip_connection_layers])
+    print(skips.shape)
 
     # add center block if previous operation was maxpooling (for vgg models)
     if isinstance(backbone.layers[-1], layers.MaxPooling3D):
@@ -160,6 +161,7 @@ def build_atten_res_unet(
         if i < len(skips):
             skip = skips[i]
             skip_shape = skip.shape
+            print(skip.shape)
         else:
             skip = None
 
