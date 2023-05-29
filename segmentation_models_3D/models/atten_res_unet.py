@@ -57,9 +57,7 @@ def ResConvBlock(filters, use_batchnorm=False, name=None):
     def wrapper(input_tensor):
         x = Conv3x3BnReLU(filters, use_batchnorm, name=None)(input_tensor)
         x = Conv3x3BnReLU(filters, use_batchnorm, name=None)(x)
-        shortcut = Conv3dBn(filters, 1, kernel_initializer='he_uniform',
-                            padding='same', use_batchnorm=use_batchnorm, 
-                            name=name, **kwargs)
+        shortcut = Conv3dBn(filters, 1, kernel_initializer='he_uniform', padding='same', use_batchnorm=use_batchnorm, name=name, **kwargs)(input_tensor)
         x = layers.add([shortcut, x])
         x = layers.Activation('relu')(x)
 
@@ -83,32 +81,25 @@ def AttentionBlock(x, gating, inter_shape, name=None):
     shape_x = backend.int_shape(x)
     shape_g = backend.int_shape(gating)
 
-    theta_x = layers.Conv3D(inter_shape, (2, 2, 2), strides=(2, 2, 2),
-                            padding='same')(x)
+    theta_x = layers.Conv3D(inter_shape, (2, 2, 2), strides=(2, 2, 2),padding='same')(x)
     shape_theta_x = backend.int_shape(theta_x) 
 
     phi_g = layers.Conv3D(inter_shape, (1, 1, 1), padding='same')(gating)
-    upsample_g = layers.Conv3DTranspose(inter_shape, (3, 3, 3),
-                                        strides=(shape_theta_x[1] // shape_g[1],
-                                                 shape_theta_x[2] // shape_g[2],
-                                                 shape_theta_x[3] // shape_g[3])
-                                        )
+    upsample_g = layers.Conv3DTranspose(inter_shape, (3, 3, 3), strides=(shape_theta_x[1] // shape_g[1], shape_theta_x[2] // shape_g[2], shape_theta_x[3] // shape_g[3])
+                                        )(phi_g)
     
     concat_xg = layers.add([upsample_g, theta_x])
     act_xg = layers.Activation('relu')(concat_xg)
     psi = layers.Conv3D(1, (1, 1), padding='same')(act_xg)
     sigmoid_xg = layers.Activation('sigmoid')(psi)
     shape_sigmoid = backend.int_shape(sigmoid_xg)
-    upsample_psi = layers.UpSampling3D(size=(shape_x[1] // shape_sigmoid[1],
-                                             shape_x[2] // shape_sigmoid[2],
-                                             shape_x[3] // shape_sigmoid[3]))(
-                                                  sigmoid_xg)
+    upsample_psi = layers.UpSampling3D(size=(shape_x[1] // shape_sigmoid[1], shape_x[2] // shape_sigmoid[2], shape_x[3] // shape_sigmoid[3]))(sigmoid_xg)
                                              
     upsample_psi = RepeatElement(upsample_psi, shape_x[4])
 
     y = layers.multiply([upsample_psi, x])
 
-    result = layers.Conv3D(shape_x[3], (1, 1), padding='same')(y)
+    result = layers.Conv3D(shape_x[4], (1, 1), padding='same')(y)
     result_bn = layers.BatchNormalization()(result)
     
     return result_bn
@@ -129,8 +120,7 @@ def DecoderBlock(filters, stage, use_batchnorm=False):
         x = layers.UpSampling3D(size=2, name=up_name)(input_tensor)
 
         if skip is not None:
-            x = layers.Concatenate(axis=concat_axis, name=concat_name)([atten, 
-                                                                        skip])
+            x = layers.Concatenate(axis=concat_axis, name=concat_name)([atten, skip])
 
         x = ResConvBlock(filters, use_batchnorm, name=res_conv1_name)(x)
         x = ResConvBlock(filters, use_batchnorm, name=res_conv2_name)(x)
@@ -155,6 +145,7 @@ def build_atten_res_unet(
 ):
     input_ = backbone.input
     x = backbone.output
+    shape = x.shape
 
     # extract skip connections
     skips = ([backbone.get_layer(name=i).output if isinstance(i, str)
@@ -163,7 +154,6 @@ def build_atten_res_unet(
     # add center block if previous operation was maxpooling (for vgg models)
     if isinstance(backbone.layers[-1], layers.MaxPooling3D):
         x = ResConvBlock(512, use_batchnorm, name='center_block1')(x)
-        x = ResConvBlock(512, use_batchnorm, name='center_block2')(x)
 
     # building decoder blocks
     for i in range(n_upsample_blocks):
