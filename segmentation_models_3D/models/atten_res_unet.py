@@ -77,8 +77,8 @@ def GatingSignal(input, filters, use_batchnorm=False, name=None):
 
     return x
 
-def AttentionBlock(x, shape_x, gating, inter_shape, name=None):
-    # shape_x = backend.int_shape(x)
+def AttentionBlock(x, gating, inter_shape, name=None):
+    shape_x = x.get_shape()
     shape_g = backend.int_shape(gating)
 
     theta_x = layers.Conv3D(inter_shape, (2, 2, 2), strides=(2, 2, 2),padding='same')(x)
@@ -114,9 +114,9 @@ def DecoderBlock(filters, stage, use_batchnorm=False):
 
     concat_axis = 4 if backend.image_data_format() == 'channels_last' else 1
 
-    def wrapper(input_tensor, skip=None, skip_shape=None):
+    def wrapper(input_tensor, skip=None):
         g = GatingSignal(input_tensor, filters, use_batchnorm, name=gate_name)
-        atten = AttentionBlock(skip, skip_shape, g, filters, name=atten_name)
+        atten = AttentionBlock(skip, g, filters, name=atten_name)
         x = layers.UpSampling3D(size=2, name=up_name)(input_tensor)
 
         if skip is not None:
@@ -159,12 +159,10 @@ def build_atten_res_unet(
 
         if i < len(skips):
             skip = skips[i]
-            skip_shape = skip.shape
-            print(skip.shape)
         else:
             skip = None
 
-        x = DecoderBlock(decoder_filters[i], stage=i, use_batchnorm=use_batchnorm)(x, skip, skip_shape)
+        x = DecoderBlock(decoder_filters[i], stage=i, use_batchnorm=use_batchnorm)(x, skip)
 
     if dropout:
         x = layers.SpatialDropout3D(dropout, name='pyramid_dropout')(x)
