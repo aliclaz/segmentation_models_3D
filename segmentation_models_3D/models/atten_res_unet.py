@@ -86,7 +86,7 @@ def AttentionBlock(x, gating, inter_shape, name=None):
 
     phi_g = layers.Conv3D(inter_shape, (1, 1, 1), padding='same')(gating)
     upsample_g = layers.Conv3DTranspose(inter_shape, (3, 3, 3), strides=(shape_theta_x[1] // shape_g[1], shape_theta_x[2] // shape_g[2], shape_theta_x[3] // shape_g[3])
-                                        )(phi_g)
+                                        padding='same')(phi_g)
     
     concat_xg = layers.add([upsample_g, theta_x])
     act_xg = layers.Activation('relu')(concat_xg)
