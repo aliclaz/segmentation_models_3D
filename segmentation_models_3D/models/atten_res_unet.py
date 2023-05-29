@@ -163,7 +163,7 @@ def build_atten_res_unet(
         else:
             skip = None
 
-        x = DecoderBlock(decoder_filters[i], stage=i, use_batchnorm=use_batchnorm)(x, skip)
+        x = DecoderBlock(decoder_filters[i], stage=i, use_batchnorm=use_batchnorm)(x, skip=skip)
 
     if dropout:
         x = layers.SpatialDropout3D(dropout, name='pyramid_dropout')(x)
