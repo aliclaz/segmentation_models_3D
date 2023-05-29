@@ -91,7 +91,7 @@ def AttentionBlock(x, gating, inter_shape, name=None):
     
     concat_xg = layers.add([upsample_g, theta_x])
     act_xg = layers.Activation('relu')(concat_xg)
-    psi = layers.Conv3D(1, (1, 1), padding='same')(act_xg)
+    psi = layers.Conv3D(1, (1, 1, 1), padding='same')(act_xg)
     sigmoid_xg = layers.Activation('sigmoid')(psi)
     shape_sigmoid = backend.int_shape(sigmoid_xg)
     upsample_psi = layers.UpSampling3D(size=(shape_x[1] // shape_sigmoid[1], shape_x[2] // shape_sigmoid[2], shape_x[3] // shape_sigmoid[3]))(sigmoid_xg)
@@ -100,7 +100,7 @@ def AttentionBlock(x, gating, inter_shape, name=None):
 
     y = layers.multiply([upsample_psi, x])
 
-    result = layers.Conv3D(shape_x[4], (1, 1), padding='same')(y)
+    result = layers.Conv3D(shape_x[4], (1, 1, 1), padding='same')(y)
     result_bn = layers.BatchNormalization()(result)
     
     return result_bn
