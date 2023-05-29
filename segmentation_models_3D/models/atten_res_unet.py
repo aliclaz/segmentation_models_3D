@@ -78,7 +78,7 @@ def GatingSignal(input, filters, use_batchnorm=False, name=None):
     return x
 
 def AttentionBlock(x, gating, inter_shape, name=None):
-    shape_x = x.get_shape()
+    shape_x = backend.int_shape(x)
     shape_g = backend.int_shape(gating)
 
     theta_x = layers.Conv3D(inter_shape, (2, 2, 2), strides=(2, 2, 2),padding='same')(x)
@@ -116,7 +116,8 @@ def DecoderBlock(filters, stage, use_batchnorm=False):
 
     def wrapper(input_tensor, skip=None):
         g = GatingSignal(input_tensor, filters, use_batchnorm, name=gate_name)
-        atten = AttentionBlock(skip, g, filters, name=atten_name)
+        if skip is not None:
+            atten = AttentionBlock(skip, g, filters, name=atten_name)
         x = layers.UpSampling3D(size=2, name=up_name)(input_tensor)
 
         if skip is not None:
