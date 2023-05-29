@@ -145,7 +145,6 @@ def build_atten_res_unet(
 ):
     input_ = backbone.input
     x = backbone.output
-    shape = x.shape
 
     # extract skip connections
     skips = ([backbone.get_layer(name=i).output if isinstance(i, str)
