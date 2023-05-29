@@ -78,7 +78,7 @@ def GatingSignal(input, filters, use_batchnorm=False, name=None):
     return x
 
 def AttentionBlock(x, gating, inter_shape, name=None):
-    shape_x = x.shape
+    shape_x = backend.int_shape(x)
     shape_g = backend.int_shape(gating)
 
     theta_x = layers.Conv3D(inter_shape, (2, 2, 2), strides=(2, 2, 2),padding='same')(x)
@@ -159,6 +159,7 @@ def build_atten_res_unet(
 
         if i < len(skips):
             skip = skips[i]
+            print(skip.shape)
         else:
             skip = None
 
