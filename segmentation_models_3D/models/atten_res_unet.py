@@ -78,7 +78,7 @@ def GatingSignal(input, filters, use_batchnorm=False, name=None):
     return x
 
 def AttentionBlock(x, gating, inter_shape, name=None):
-    shape_x = backend.int_shape(x)
+    shape_x = x.shape
     shape_g = backend.int_shape(gating)
 
     theta_x = layers.Conv3D(inter_shape, (2, 2, 2), strides=(2, 2, 2),padding='same')(x)
@@ -149,7 +149,6 @@ def build_atten_res_unet(
     # extract skip connections
     skips = ([backbone.get_layer(name=i).output if isinstance(i, str)
               else backbone.get_layer(index=i).output for i in skip_connection_layers])
-    print(backend.int_shape(skips))
 
     # add center block if previous operation was maxpooling (for vgg models)
     if isinstance(backbone.layers[-1], layers.MaxPooling3D):
